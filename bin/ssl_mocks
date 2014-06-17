@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+require 'ssl_mocks'
+require 'json'
+
+ca_key = SSLMocks::Key.new
+ca_cert = SSLMocks::Certificate.new(:common_name => 'CA', :country => 'US')
+ca_cert.sign_ca(ca_key)
+
+key = SSLMocks::Key.new
+cert = SSLMocks::Certificate.new(:common_name => 'example.com', :country => 'US')
+cert.public_key = key.public_key
+cert.sign(ca_key, ca_cert)
+
+objects = {
+  :ca_key => ca_key,
+  :ca_cert => ca_cert,
+  :key => key,
+  :cert => cert
+}
+
+File.open("ca_key.pem", "w") { |f| f.write(ca_key) }
+File.open("ca_cert.pem", "w") { |f| f.write(ca_cert) }
+File.open("key.pem", "w") { |f| f.write(key) }
+File.open("cert.pem", "w") { |f| f.write(cert) }
